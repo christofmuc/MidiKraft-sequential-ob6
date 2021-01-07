@@ -60,6 +60,7 @@ namespace midikraft {
 		virtual bool isDataFile(const MidiMessage &message, int dataTypeID) const override;
 		virtual std::vector<std::shared_ptr<DataFile>> loadData(std::vector<MidiMessage> messages, int dataTypeID) const override;
 		virtual std::vector<DataFileDescription> dataTypeNames() const override;
+		virtual std::vector<DataFileImportDescription> dataFileImportChoices() const override;
 
 		//TODO - these should become part of the DSISynth class
 		virtual DataFileLoadCapability *loader() override;

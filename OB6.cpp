@@ -335,6 +335,15 @@ namespace midikraft {
 		return { { "Patch", true, true}, { "Global Settings", true, false}, { "Alternate Tuning", false, true } };
 	}
 
+	std::vector<midikraft::DataFileLoadCapability::DataFileImportDescription> OB6::dataFileImportChoices() const
+	{
+		std::vector<midikraft::DataFileLoadCapability::DataFileImportDescription> result;
+		for (int i = 0; i < numberOfBanks(); i++) {
+			result.push_back({ friendlyBankName(MidiBankNumber::fromZeroBase(i)), PATCH, i * numberOfPatches() });
+		}
+		return result;
+	}
+
 	MidiMessage OB6::requestGlobalSettingsDump() const {
 		return MidiHelpers::sysexMessage({ 0x01 /* DSI */, midiModelID_, 0x0e /* Global parameter transmit */ });
 	}
