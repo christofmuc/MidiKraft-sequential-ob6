@@ -365,10 +365,10 @@ namespace midikraft {
 		globalSettingsTree_.addListener(&updateSynthWithGlobalSettingsListener_);
 	}
 
-	midikraft::DataFileLoadCapability * OB6::loader()
+	std::shared_ptr<midikraft::DataFileLoadCapability> OB6::loader()
 	{
 		//TODO this could be standard for all DSISynths
-		return this;
+		return shared_from_this();
 	}
 
 	int OB6::settingsDataFileType() const

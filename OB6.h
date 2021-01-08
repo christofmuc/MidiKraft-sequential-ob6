@@ -11,7 +11,7 @@
 
 namespace midikraft {
 
-	class OB6 : public DSISynth, public DataFileLoadCapability
+	class OB6 : public DSISynth, public DataFileLoadCapability, public std::enable_shared_from_this<OB6>
 	{
 	public:
 		enum DataType {
@@ -63,7 +63,7 @@ namespace midikraft {
 		virtual std::vector<DataFileImportDescription> dataFileImportChoices() const override;
 
 		//TODO - these should become part of the DSISynth class
-		virtual DataFileLoadCapability *loader() override;
+		virtual std::shared_ptr<DataFileLoadCapability> loader() override;
 		virtual int settingsDataFileType() const override;
 
 		// Enable the DSISynth implementation of the GlobalSettingsCapability
