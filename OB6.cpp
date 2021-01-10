@@ -268,17 +268,6 @@ namespace midikraft {
 		return {};
 	}
 
-	int OB6::numberOfMidiMessagesPerStreamType(DataStreamType dataTypeID) const
-	{
-		switch (dataTypeID.asInt())
-		{
-		case PATCH: return 1;
-		case GLOBAL_SETTINGS: return 1;
-		case ALTERNATE_TUNING: return 17;
-		default: return 0;
-		}
-	}
-
 	bool OB6::isDataFile(const MidiMessage &message, DataFileType dataTypeID) const
 	{
 		if (isOwnSysex(message)) {

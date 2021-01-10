@@ -11,7 +11,7 @@
 
 namespace midikraft {
 
-	class OB6 : public DSISynth, public DataFileLoadCapability, public std::enable_shared_from_this<OB6>
+	class OB6 : public DSISynth, public SingleMessageDataFileLoadCapability, public std::enable_shared_from_this<OB6>
 	{
 	public:
 		enum DataType {
@@ -56,7 +56,6 @@ namespace midikraft {
 
 		// DataFileLoadCapability
 		virtual std::vector<MidiMessage> requestDataItem(int itemNo, DataStreamType dataTypeID) override;
-		virtual int numberOfMidiMessagesPerStreamType(DataStreamType dataTypeID) const override;
 		virtual bool isDataFile(const MidiMessage &message, DataFileType dataTypeID) const override;
 		virtual bool isPartOfDataFileStream(const MidiMessage &message, DataStreamType dataTypeID) const override;
 		virtual std::vector<std::shared_ptr<DataFile>> loadData(std::vector<MidiMessage> messages, DataStreamType dataTypeID) const override;
