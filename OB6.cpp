@@ -201,7 +201,7 @@ namespace midikraft {
 
 			}
 			// Can you use this to init the global settings!
-			auto dataFile = loadData({ message }, GLOBAL_SETTINGS);
+			auto dataFile = loadData({ message }, DataStreamType(GLOBAL_SETTINGS));
 			if (dataFile.size() > 0) {
 				setGlobalSettingsFromDataFile(dataFile[0]);
 			}
@@ -253,11 +253,11 @@ namespace midikraft {
 		localControl_ = localControlOn;
 	}
 
-	std::vector<juce::MidiMessage> OB6::requestDataItem(int itemNo, int dataTypeID)
+	std::vector<juce::MidiMessage> OB6::requestDataItem(int itemNo, DataStreamType dataTypeID)
 	{
-		switch (dataTypeID) {
+		switch (dataTypeID.asInt()) {
 		case PATCH:
-			return { requestEditBufferDump() }; // Interpreting this as the edit buffer
+			return requestPatch(itemNo);
 		case GLOBAL_SETTINGS:
 			return { requestGlobalSettingsDump() };
 		case ALTERNATE_TUNING:
@@ -268,9 +268,9 @@ namespace midikraft {
 		return {};
 	}
 
-	int OB6::numberOfDataItemsPerType(int dataTypeID) const
+	int OB6::numberOfMidiMessagesPerStreamType(DataStreamType dataTypeID) const
 	{
-		switch (dataTypeID)
+		switch (dataTypeID.asInt())
 		{
 		case PATCH: return 1;
 		case GLOBAL_SETTINGS: return 1;
@@ -279,13 +279,13 @@ namespace midikraft {
 		}
 	}
 
-	bool OB6::isDataFile(const MidiMessage &message, int dataTypeID) const
+	bool OB6::isDataFile(const MidiMessage &message, DataFileType dataTypeID) const
 	{
 		if (isOwnSysex(message)) {
-			switch (dataTypeID)
+			switch (dataTypeID.asInt())
 			{
 			case PATCH:
-				return isEditBufferDump(message);
+				return isSingleProgramDump(message) || isEditBufferDump(message);
 			case GLOBAL_SETTINGS:
 				return isGlobalSettingsDump(message);
 			case ALTERNATE_TUNING:
@@ -297,12 +297,17 @@ namespace midikraft {
 		return false;
 	}
 
-	std::vector<std::shared_ptr<midikraft::DataFile>> OB6::loadData(std::vector<MidiMessage> messages, int dataTypeID) const
+	bool OB6::isPartOfDataFileStream(const MidiMessage &message, DataStreamType dataTypeID) const
+	{
+		return isDataFile(message, DataFileType(dataTypeID.asInt()));
+	}
+
+	std::vector<std::shared_ptr<midikraft::DataFile>> OB6::loadData(std::vector<MidiMessage> messages, DataStreamType dataTypeID) const
 	{
 		std::vector<std::shared_ptr<DataFile>> result;
 		for (auto m : messages) {
-			if (isDataFile(m, dataTypeID)) {
-				switch (dataTypeID) {
+			if (isPartOfDataFileStream(m, dataTypeID)) {
+				switch (dataTypeID.asInt()) {
 				case GLOBAL_SETTINGS: {
 					std::vector<uint8> syx(m.getSysExData(), m.getSysExData() + m.getSysExDataSize());
 					auto storage = std::make_shared<GlobalSettingsFile>(GLOBAL_SETTINGS, syx);
@@ -332,14 +337,16 @@ namespace midikraft {
 
 	std::vector<midikraft::DataFileLoadCapability::DataFileDescription> OB6::dataTypeNames() const
 	{
-		return { { "Patch", true, true}, { "Global Settings", true, false}, { "Alternate Tuning", false, true } };
+		return { { DataFileType(PATCH), "Patch", true, true},
+			{ DataFileType(GLOBAL_SETTINGS), "Global Settings", true, false}, 
+			{ DataFileType(ALTERNATE_TUNING), "Alternate Tuning", false, true } };
 	}
 
 	std::vector<midikraft::DataFileLoadCapability::DataFileImportDescription> OB6::dataFileImportChoices() const
 	{
 		std::vector<midikraft::DataFileLoadCapability::DataFileImportDescription> result;
 		for (int i = 0; i < numberOfBanks(); i++) {
-			result.push_back({ friendlyBankName(MidiBankNumber::fromZeroBase(i)), PATCH, i * numberOfPatches() });
+			result.push_back({ DataStreamType(PATCH), friendlyBankName(MidiBankNumber::fromZeroBase(i)), i * numberOfPatches() });
 		}
 		return result;
 	}
@@ -375,6 +382,11 @@ namespace midikraft {
 	{
 		//TODO this could be standard for all DSISynths
 		return GLOBAL_SETTINGS;
+	}
+
+	midikraft::DataFileLoadCapability::DataFileImportDescription OB6::settingsImport() const
+	{
+		return { DataStreamType(GLOBAL_SETTINGS), "OB6 Globals", 0 };
 	}
 
 	std::vector<midikraft::DSIGlobalSettingDefinition> OB6::dsiGlobalSettings() const

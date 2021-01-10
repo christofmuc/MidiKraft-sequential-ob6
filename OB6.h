@@ -55,16 +55,18 @@ namespace midikraft {
 		virtual void setLocalControl(MidiController *controller, bool localControlOn) override;
 
 		// DataFileLoadCapability
-		virtual std::vector<MidiMessage> requestDataItem(int itemNo, int dataTypeID) override;
-		virtual int numberOfDataItemsPerType(int dataTypeID) const override;
-		virtual bool isDataFile(const MidiMessage &message, int dataTypeID) const override;
-		virtual std::vector<std::shared_ptr<DataFile>> loadData(std::vector<MidiMessage> messages, int dataTypeID) const override;
+		virtual std::vector<MidiMessage> requestDataItem(int itemNo, DataStreamType dataTypeID) override;
+		virtual int numberOfMidiMessagesPerStreamType(DataStreamType dataTypeID) const override;
+		virtual bool isDataFile(const MidiMessage &message, DataFileType dataTypeID) const override;
+		virtual bool isPartOfDataFileStream(const MidiMessage &message, DataStreamType dataTypeID) const override;
+		virtual std::vector<std::shared_ptr<DataFile>> loadData(std::vector<MidiMessage> messages, DataStreamType dataTypeID) const override;
 		virtual std::vector<DataFileDescription> dataTypeNames() const override;
 		virtual std::vector<DataFileImportDescription> dataFileImportChoices() const override;
 
 		//TODO - these should become part of the DSISynth class
 		virtual std::shared_ptr<DataFileLoadCapability> loader() override;
 		virtual int settingsDataFileType() const override;
+		virtual DataFileLoadCapability::DataFileImportDescription settingsImport() const override;
 
 		// Enable the DSISynth implementation of the GlobalSettingsCapability
 		virtual std::vector<DSIGlobalSettingDefinition> dsiGlobalSettings() const;
