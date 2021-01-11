@@ -326,9 +326,7 @@ namespace midikraft {
 
 	std::vector<midikraft::DataFileLoadCapability::DataFileDescription> OB6::dataTypeNames() const
 	{
-		return { { DataFileType(PATCH), "Patch", true, true},
-			{ DataFileType(GLOBAL_SETTINGS), "Global Settings", true, false}, 
-			{ DataFileType(ALTERNATE_TUNING), "Alternate Tuning", false, true } };
+		return { { DataFileType(PATCH), "Patch"}, { DataFileType(GLOBAL_SETTINGS), "Global Settings"}, { DataFileType(ALTERNATE_TUNING), "Alternate Tuning"} };
 	}
 
 	std::vector<midikraft::DataFileLoadCapability::DataFileImportDescription> OB6::dataFileImportChoices() const
